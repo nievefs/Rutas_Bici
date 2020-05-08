@@ -1,4 +1,3 @@
-
 <?php
 
 // El html es basado en el tema twentytwenty
@@ -12,19 +11,36 @@ $cities = getCities();
 $routeCityId = get_post_meta($post->ID, NAF_FIELD_PREFIX . 'city', true);
 
 
-get_header();?>
+get_header(); ?>
 
 <main id="site-content" role="main">
 
     <h2><?= $post->post_title; ?></h2>
-      
-    <p>Km: <?= get_post_meta($post->ID, NAF_FIELD_PREFIX . 'km', true) ?></p>
-    <?php // Ahora aqui sacamos en el nombre de la ciudad utilizando el city ID que guardamos en la ruta ?>
-    <p>ciudad: <?= $cities[$routeCityId]; // $cities[id] ?></p>
-    <p>Dificultad: <?= get_post_meta($post->ID, NAF_FIELD_PREFIX . 'difficulty', true) ?></p>
-    <p>Puntuación: <?= get_post_meta($post->ID, NAF_FIELD_PREFIX . 'punctuation', true) ?></p>
-    
+    <?php if (get_option('naf_option_presentacion') == 'lista') : ?>
+        <ul>
+            <li>Km: <?= get_post_meta($post->ID, NAF_FIELD_PREFIX . 'km', true) ?></li>
+            <?php // Ahora aqui sacamos en el nombre de la ciudad utilizando el city ID que guardamos en la ruta  ?>
+            <li>ciudad: <?= $cities[$routeCityId]; // $cities[id] ?></li>
+            <li>Dificultad: <?= get_post_meta($post->ID, NAF_FIELD_PREFIX . 'difficulty', true) ?></li>
+            <li>Puntuación: <?= get_post_meta($post->ID, NAF_FIELD_PREFIX . 'punctuation', true) ?></li>
+        </ul>
+    <?php else : ?>
+        <table>
+            <tr>
+                <th>Km</th>
+                <th>Ciudad</th>
+                <th>Dificultad</th>
+                <th>Puntuación</th>
+            </tr>
+            <tr>
+                <td><?= get_post_meta($post->ID, NAF_FIELD_PREFIX . 'km', true) ?></td>
+                <td><?= $cities[$routeCityId]; // $cities[id] ?></td>
+                <td><?= get_post_meta($post->ID, NAF_FIELD_PREFIX . 'difficulty', true) ?></td>
+                <td><?= get_post_meta($post->ID, NAF_FIELD_PREFIX . 'punctuation', true) ?></td>
+            </tr>
+        </table>
+    <?php endif; ?>
 
 </main>
 
-<?php get_footer();?>
+<?php get_footer(); ?>
