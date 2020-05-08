@@ -12,6 +12,7 @@
 
 define('NAF_FIELD_PREFIX', 'naf_');
 define('NAF_VIEWS_PATH', __DIR__ . '/views');
+define('NAF_OPTIONS_GROUP', 'naf-options-group');
 
 
 /**
@@ -122,6 +123,29 @@ add_filter('single_template', function ($single) {
 
     return $single;
 });
+
+
+add_action('admin_menu', function() {
+    add_menu_page('Wiki', 'Rutas plugin', 'manage_options', 'nf-rutas-admin', 'render_admin_wiki');
+    add_submenu_page('nf-rutas-admin', 'Options page', 'Options', 'manage_options', 'nf-rutas-admin-options', 'render_admin_options');
+
+    add_action('admin_init', 'register_options');
+});
+
+function render_admin_wiki() {
+    include_once NAF_VIEWS_PATH . '/backend-admin-wiki.php';
+}
+
+function render_admin_options()
+{
+    include_once NAF_VIEWS_PATH . '/backend-admin-options.php';
+}
+
+function register_options()
+{
+    // asi registras las opciones
+    register_setting(NAF_OPTIONS_GROUP, 'naf_option_presentacion');
+}
 
 
 // Cuando tenemos un CPT  wordpress chequea si tenmos un plantila definida en el tema activo.
