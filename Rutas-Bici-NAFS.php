@@ -13,6 +13,8 @@
 define('NAF_FIELD_PREFIX', 'naf_');
 define('NAF_VIEWS_PATH', __DIR__ . '/views');
 define('NAF_OPTIONS_GROUP', 'naf-options-group');
+define('NAF_CPT_ROUTE', 'route');
+define('NAF_CPT_CITY', 'city');
 
 
 /**
@@ -38,7 +40,7 @@ function getCities(){
 add_action('init', function () {
 
     // Registracion de rutas juntos con los metaboxes
-    register_post_type('route', [ //---->funcion que añade CPT Rutas
+    register_post_type(NAF_CPT_ROUTE, [ //---->funcion que añade CPT Rutas
         'labels' => [
             'name' => 'Rutas de Bici',
             'singular_name' => 'Route',
@@ -56,7 +58,7 @@ add_action('init', function () {
     ]);
 
     // Registration de city sin metaboxes
-    register_post_type('city', [ //----->funcion que añade CPT ciudades de las Rutas
+    register_post_type(NAF_CPT_CITY, [ //----->funcion que añade CPT ciudades de las Rutas
         'labels' => [
             'name' => 'Ciudades',
             'singular_name' => 'City',
@@ -99,13 +101,42 @@ add_action('save_post', function ($post_id) {
     );
 });
 
+function fetch_all_city_routes() {
+
+    /** @var wpdb */
+    global $wpdb;
+
+    $query = "SELECT 
+            p.ID, 
+            p.post_title, 
+            p2.post_title AS city, 
+            pm2.meta_value AS km, 
+            pm3.meta_value AS difficulty, 
+            pm4.meta_value AS punctuaction
+        FROM
+            {$wpdb->posts} p
+            LEFT JOIN {$wpdb->postmeta} pm1 ON (p.ID = pm1.post_id AND pm1.meta_key = 'naf_city')
+            LEFT JOIN {$wpdb->postmeta} pm2 ON (p.ID = pm2.post_id AND pm2.meta_key = 'naf_km')
+            LEFT JOIN {$wpdb->postmeta} pm3 ON (p.ID = pm3.post_id AND pm3.meta_key = 'naf_difficulty')
+            LEFT JOIN {$wpdb->postmeta} pm4 ON (p.ID = pm4.post_id AND pm4.meta_key = 'naf_punctuation')
+            LEFt JOIN {$wpdb->posts} p2 ON (p2.ID = pm1.meta_value AND pm1.meta_key = 'naf_city')
+        WHERE p.post_type = '" . NAF_CPT_ROUTE . "'
+        AND p.post_status = 'publish';
+    ";
+
+    return $wpdb->get_results($query, ARRAY_A) ?: [];
+}
+
 
 /**
  * Shortcode
  */
 function get_inf_post_types(){
-    //echo "hola";  
-    return NAF_VIEWS_PATH . '/shortcode.php';       
+    $cityRoutes = fetch_all_city_routes();
+    if (count($cityRoutes) === 0 || is_admin()) {
+        return;
+    }
+    include_once NAF_VIEWS_PATH . '/shortcode.php';       
 }
 add_shortcode('Listado_Rutas_Bicis','get_inf_post_types');
 
